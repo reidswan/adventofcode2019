@@ -1,12 +1,13 @@
 use std::time::Instant;
 use day1;
-// use day2;
+use day2;
 // use day3;
 
 
 fn main() {
     
     run_day1();
+    run_day2();
 
 }
 
@@ -14,6 +15,12 @@ fn run_day1() {
     println!("------ Day 1 ------");
     let input = day1::get_parsed_input();
     time_each::<Vec<u128>>(vec![day1::part1, day1::part2], input);
+}
+
+fn run_day2() {
+    println!("------ Day 2 ------");
+    let input = day2::get_parsed_input();
+    time_each(vec![day2::part1, day2::part2], input);
 }
 
 fn time_each<T>(functions: Vec<fn(&T)->()>, input: T) {

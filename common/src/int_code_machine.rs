@@ -2,6 +2,7 @@ pub const ADD: usize = 1;
 pub const MUL: usize = 2;
 pub const END: usize = 99;
 
+#[derive(Clone)]
 pub struct IntCodeMachine {
     pub registers: Vec<usize>,
     pointer: usize,
