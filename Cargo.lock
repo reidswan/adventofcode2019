@@ -3,6 +3,11 @@
 [[package]]
 name = "aoc2019"
 version = "0.1.0"
+dependencies = [
+ "day1 0.1.0",
+ "day2 0.1.0",
+ "day3 0.1.0",
+]
 
 [[package]]
 name = "common"
