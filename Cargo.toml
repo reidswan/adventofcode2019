@@ -13,3 +13,4 @@ members = ["day1", "day2", "day3", "common"]
 day1 = { path = "day1" }
 day2 = { path = "day2" }
 day3 = { path = "day3" }
+clap = "^2.33"

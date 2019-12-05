@@ -1,14 +1,28 @@
-use std::time::Instant;
+use clap::{App, Arg};
 use day1;
 use day2;
-// use day3;
-
+use day3;
+use std::time::Instant;
 
 fn main() {
-    
-    run_day1();
-    run_day2();
+    let matches = App::new("MyApp")
+        .arg(Arg::with_name("day").index(1).help("The day to run"))
+        .get_matches();
 
+    let day = matches.value_of("day");
+    if day.is_none() {
+        run_day1();
+        run_day2();
+        run_day3();
+    } else {
+        let day = day.unwrap();
+        match day {
+            "1" => run_day1(),
+            "2" => run_day2(),
+            "3" => run_day3(),
+            _ => println!("Not a valid day: {}", day),
+        }
+    }
 }
 
 fn run_day1() {
@@ -23,7 +37,13 @@ fn run_day2() {
     time_each(vec![day2::part1, day2::part2], input);
 }
 
-fn time_each<T>(functions: Vec<fn(&T)->()>, input: T) {
+fn run_day3() {
+    println!("------ Day 3 ------");
+    let input = day3::get_parsed_input();
+    time_each(vec![day3::part1, day3::part2], input)
+}
+
+fn time_each<T>(functions: Vec<fn(&T) -> ()>, input: T) {
     let mut times = vec![Instant::now()];
     for function in functions {
         function(&input);
@@ -41,4 +61,3 @@ fn time_each<T>(functions: Vec<fn(&T)->()>, input: T) {
         prev_time = current_time;
     }
 }
-
