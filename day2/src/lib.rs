@@ -1,6 +1,9 @@
 use common::int_code_machine::IntCodeMachine;
+use common::digits::*;
 
 pub fn get_parsed_input()-> IntCodeMachine {
+    println!("{:?}", (100).digits_reversed().map(|i| i * 2).collect::<Vec<u8>>());
+
     IntCodeMachine::new(include_str!("input/input1"))
 }
 
