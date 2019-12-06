@@ -45,27 +45,31 @@ fn test_part2(d: u32) -> bool {
         return false;
     }
 
-    let mut has_strict_repeat = false;
-    let mut current_repeat_length = 1;
-    let mut prev_digit = d % 10;
-    let mut num = d / 10;
-    while num > 0 {
-        let current_digit = num % 10;
-        if current_digit > prev_digit {
-            return false;
-        } else if current_digit == prev_digit {
-            current_repeat_length += 1
+    let last_digit = (d % 10) as u8;
+    let num = d / 10;
+    let result = num.digits_reversed().fold(Some((last_digit, false, 1)), |optional_result, digit| {
+        let (prev_digit, has_strict_repeat, current_repeat_length) = optional_result?;
+        if has_strict_repeat {
+            // we've already found a strict repeat (len = 2), so short circuit
+            Some((digit, has_strict_repeat, current_repeat_length))
+        } else if digit > prev_digit {
+            // violated the non-decreasing (left to right) principle
+            None
+        } else if digit == prev_digit {
+            // continuing a string of repeats
+            Some((digit, has_strict_repeat, current_repeat_length + 1))
+        } else if current_repeat_length == 2 {
+            // broken a string of repeats; check if the previous string of repeats
+            // satisfies length 1
+            Some((digit, true, 1))
         } else {
-            if current_repeat_length == 2 {
-                has_strict_repeat = true
-            }
-            current_repeat_length = 1;
+            Some((digit, has_strict_repeat, 1))
         }
-        prev_digit = current_digit;
-        num /= 10
+    });
+    match result {
+        None => false,
+        Some((_, has_strict_repeat, current_repeat_length)) => has_strict_repeat || current_repeat_length == 2
     }
-
-    has_strict_repeat || current_repeat_length == 2
 }
 
 pub fn get_parsed_input() -> (u32, u32) {
