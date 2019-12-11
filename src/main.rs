@@ -3,7 +3,23 @@ use day1;
 use day2;
 use day3;
 use day4;
+use day5;
 use std::time::Instant;
+
+macro_rules! run_day {
+    ($name:expr,$( $p:ident ),*) => {
+        {
+            println!("------ {} ------", $name);
+            let mut i = 0;
+            $( 
+                i += 1;
+                println!("{}", i);
+                time_each(vec![$p::part1, $p::part2], $p::get_parsed_input()); 
+                println!("--------------------");
+            )*
+        }
+    };
+}
 
 fn main() {
     let matches = App::new("MyApp")
@@ -12,44 +28,18 @@ fn main() {
 
     let day = matches.value_of("day");
     if day.is_none() {
-        run_day1();
-        run_day2();
-        run_day3();
-        run_day4();
+        run_day!("All days", day1, day2, day3, day4, day5);
     } else {
         let day = day.unwrap();
         match day {
-            "1" => run_day1(),
-            "2" => run_day2(),
-            "3" => run_day3(),
-            "4" => run_day4(),
+            "1" => run_day!("Day 1", day1),
+            "2" => run_day!("Day 2", day2),
+            "3" => run_day!("Day 3", day3),
+            "4" => run_day!("Day 4", day4),
+            "5" => run_day!("Day 5", day5),
             _ => println!("Not a valid day: {}", day),
         }
     }
-}
-
-fn run_day1() {
-    println!("------ Day 1 ------");
-    let input = day1::get_parsed_input();
-    time_each::<Vec<u128>>(vec![day1::part1, day1::part2], input);
-}
-
-fn run_day2() {
-    println!("------ Day 2 ------");
-    let input = day2::get_parsed_input();
-    time_each(vec![day2::part1, day2::part2], input);
-}
-
-fn run_day3() {
-    println!("------ Day 3 ------");
-    let input = day3::get_parsed_input();
-    time_each(vec![day3::part1, day3::part2], input)
-}
-
-fn run_day4() {
-    println!("------ Day 4 ------");
-    let input = day4::get_parsed_input();
-    time_each(vec![day4::part1, day4::part2], input);
 }
 
 fn time_each<T>(functions: Vec<fn(&T) -> ()>, input: T) {
