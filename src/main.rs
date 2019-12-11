@@ -4,6 +4,7 @@ use day2;
 use day3;
 use day4;
 use day5;
+use day6;
 use std::time::Instant;
 
 macro_rules! run_day {
@@ -28,7 +29,7 @@ fn main() {
 
     let day = matches.value_of("day");
     if day.is_none() {
-        run_day!("All days", day1, day2, day3, day4, day5);
+        run_day!("All days", day1, day2, day3, day4, day5, day6);
     } else {
         let day = day.unwrap();
         match day {
@@ -37,6 +38,7 @@ fn main() {
             "3" => run_day!("Day 3", day3),
             "4" => run_day!("Day 4", day4),
             "5" => run_day!("Day 5", day5),
+            "6" => run_day!("Day 6", day6),
             _ => println!("Not a valid day: {}", day),
         }
     }
@@ -52,11 +54,11 @@ fn time_each<T>(functions: Vec<fn(&T) -> ()>, input: T) {
     let total_start = *times.first().unwrap();
     let total_end = *times.last().unwrap();
 
-    println!("Total: {}us", (total_end - total_start).as_micros());
+    println!("Total: {}μs", (total_end - total_start).as_micros());
     let mut prev_time = total_start;
     for (i, &current_time) in times.iter().enumerate().skip(1) {
         let duration = current_time - prev_time;
-        println!("Part {}: {}us", i, duration.as_micros());
+        println!("Part {}: {}μs", i, duration.as_micros());
         prev_time = current_time;
     }
 }
