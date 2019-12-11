@@ -25,21 +25,15 @@ pub fn get_parsed_input() -> HashMap<String, MapTreeNode<String>> {
         let parts = line.split(')').collect::<Vec<_>>();
         let orbited_key = parts[0].trim();
         let orbiter_key = parts[1].trim();
-        if !node_map.contains_key(orbited_key) {
-            node_map.insert(orbited_key.to_owned(), MapTreeNode::new());
-        }
 
-        if !node_map.contains_key(orbiter_key) {
-            node_map.insert(orbiter_key.to_owned(), MapTreeNode::new());
-        }
+        let mut orbited = node_map.remove(orbited_key).unwrap_or(MapTreeNode::new());
+        let mut orbiter = node_map.remove(orbiter_key).unwrap_or(MapTreeNode::new());
 
-        node_map.get_mut(orbiter_key).unwrap().parent = Some(orbited_key.to_owned());
+        orbiter.parent = Some(orbited_key.to_owned());
+        orbited.children.push(orbiter_key.to_owned());
 
-        node_map
-            .get_mut(orbited_key)
-            .unwrap()
-            .children
-            .push(String::from(orbiter_key));
+        node_map.insert(orbiter_key.to_owned(), orbiter);
+        node_map.insert(orbited_key.to_owned(), orbited);
     }
     node_map
 }
@@ -76,11 +70,11 @@ pub fn part2(node_map: &HashMap<String, MapTreeNode<String>>) {
 }
 
 /// get the parents of the given src node
-fn get_parents(node_map: &HashMap<String, MapTreeNode<String>>, src: &String) -> Vec<String> {
+fn get_parents<'a>(node_map: &'a HashMap<String, MapTreeNode<String>>, src: &String) -> Vec<&'a String> {
     let mut current = &node_map[src];
     let mut parents = Vec::with_capacity(node_map.len());
     while let Some(k) = &current.parent {
-        parents.push(k.clone());
+        parents.push(k);
         current = &node_map[k];
     }
     parents

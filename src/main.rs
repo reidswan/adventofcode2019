@@ -54,11 +54,11 @@ fn time_each<T>(functions: Vec<fn(&T) -> ()>, input: T) {
     let total_start = *times.first().unwrap();
     let total_end = *times.last().unwrap();
 
-    println!("Total: {}us", (total_end - total_start).as_micros());
+    println!("Total: {}μs", (total_end - total_start).as_micros());
     let mut prev_time = total_start;
     for (i, &current_time) in times.iter().enumerate().skip(1) {
         let duration = current_time - prev_time;
-        println!("Part {}: {}us", i, duration.as_micros());
+        println!("Part {}: {}μs", i, duration.as_micros());
         prev_time = current_time;
     }
 }
