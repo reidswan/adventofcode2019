@@ -7,12 +7,13 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [workspace]
-members = ["common", "day1", "day2", "day3", "day4"]
+members = ["common", "day1", "day2", "day3", "day4", "day5"]
 
 [dependencies]
 day1 = { path = "day1" }
 day2 = { path = "day2" }
 day3 = { path = "day3" }
 day4 = { path = "day4" }
+day5 = { path = "day5" }
 
 clap = "^2.33"
