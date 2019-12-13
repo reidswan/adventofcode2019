@@ -24,18 +24,13 @@ macro_rules! run_day {
 }
 
 fn main() {
-    day7::part1();
-    day7::part2();
-}
-
-fn t() {
     let matches = App::new("MyApp")
         .arg(Arg::with_name("day").index(1).help("The day to run"))
         .get_matches();
 
     let day = matches.value_of("day");
     if day.is_none() {
-        run_day!("All days", day1, day2, day3, day4, day5, day6);
+        run_day!("All days", day1, day2, day3, day4, day5, day6, day7);
     } else {
         let day = day.unwrap();
         match day {
@@ -45,6 +40,7 @@ fn t() {
             "4" => run_day!("Day 4", day4),
             "5" => run_day!("Day 5", day5),
             "6" => run_day!("Day 6", day6),
+            "7" => run_day!("Day 7", day7),
             _ => println!("Not a valid day: {}", day),
         }
     }

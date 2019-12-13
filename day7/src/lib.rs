@@ -2,11 +2,13 @@ use common::int_code_machine::{Machine, Status};
 use common::permutations::*;
 use std::mem;
 
-pub fn part1() {
+pub fn get_parsed_input()-> Machine {
     let input = include_str!("input/input");
+    Machine::new(input, vec![])
+}
 
+pub fn part1(start_machine: &Machine) {
     let s = (0i32..5i32).collect::<Vec<_>>();
-    let start_machine = Machine::new(input, vec![]);
     let result = s
         .permutations()
         .fold(None, |acc: Option<i32>, perm| {
@@ -28,12 +30,9 @@ pub fn part1() {
     println!("Part 1 = {}", result)
 }
 
-pub fn part2() {
-    let input = include_str!("input/input");
-
+pub fn part2(start_machine: &Machine) {
+    
     let s = (5i32..10i32).collect::<Vec<_>>();
-    let mut start_machine = Machine::new(input, vec![]);
-    start_machine.wait_on_input();
 
     let result = s
         .permutations()
@@ -74,6 +73,7 @@ fn init_machines(src_machine: &Machine, settings: &Vec<i32>) -> Vec<Machine> {
 
     for setting in settings {
         let mut machine = src_machine.clone();
+        machine.wait_on_input();
         machine.input = vec![*setting, prev_output];
         machine.run();
         prev_output = machine.output[0];
