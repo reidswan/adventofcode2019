@@ -19,6 +19,7 @@ dependencies = [
  "day4 0.1.0",
  "day5 0.1.0",
  "day6 0.1.0",
+ "day7 0.1.0",
 ]
 
 [[package]]
@@ -52,6 +53,9 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
+dependencies = [
+ "streaming-iterator 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)",
+]
 
 [[package]]
 name = "day1"
@@ -90,8 +94,20 @@ name = "day6"
 version = "0.1.0"
 
 [[package]]
+name = "day7"
+version = "0.1.0"
+dependencies = [
+ "common 0.1.0",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.66"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+
+[[package]]
+name = "streaming-iterator"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
@@ -142,6 +158,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 "checksum bitflags 1.2.1 (registry+https://github.com/rust-lang/crates.io-index)" = "cf1de2fe8c75bc145a2f577add951f8134889b4795d47466a54a5c846d691693"
 "checksum clap 2.33.0 (registry+https://github.com/rust-lang/crates.io-index)" = "5067f5bb2d80ef5d68b4c87db81601f0b75bca627bc2ef76b141d7b846a3c6d9"
 "checksum libc 0.2.66 (registry+https://github.com/rust-lang/crates.io-index)" = "d515b1f41455adea1313a4a2ac8a8a477634fbae63cc6100e3aebb207ce61558"
+"checksum streaming-iterator 0.1.4 (registry+https://github.com/rust-lang/crates.io-index)" = "17d72234b03da7257de2dc6c330d2c236d2b46e76b1094c9a1c75a0ca29b0c2f"
 "checksum strsim 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)" = "8ea5119cdb4c55b55d432abb513a0429384878c15dde60cc77b1c99de1a95a6a"
 "checksum textwrap 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)" = "d326610f408c7a4eb6f51c37c330e496b08506c9457c9d34287ecc38809fb060"
 "checksum unicode-width 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)" = "7007dbd421b92cc6e28410fe7362e2e0a2503394908f417b68ec8d1c364c4e20"
