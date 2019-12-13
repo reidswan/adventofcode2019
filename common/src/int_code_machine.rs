@@ -133,12 +133,18 @@ impl Instruction {
     }
 }
 
+#[derive(Clone)]
 pub struct Machine {
     pub memory: Vec<i32>,
     mem_ptr: usize,
-    input: Vec<i32>,
+    pub input: Vec<i32>,
     input_ptr: usize,
     pub output: Vec<i32>,
+    await_empty_input: bool,
+}
+
+pub enum Status {
+    Waiting, Halted
 }
 
 impl Machine {
@@ -154,19 +160,24 @@ impl Machine {
                 input_ptr: 0,
                 mem_ptr: 0,
                 output: vec![],
+                await_empty_input: false,
             }
         } else {
             panic!("Failed to parse! {:?}", memory);
         }
     }
 
-    pub fn run(&mut self) {
+    pub fn wait_on_input(&mut self) {
+        self.await_empty_input = true;
+    }
+
+    pub fn run(&mut self)-> Status {
         use Instruction::*;
         loop {
             let instruction = Instruction::decode(&self.memory[self.mem_ptr..]);
             let mut should_increment_ptr = true;
             match &instruction {
-                Halt => return,
+                Halt => return Status::Halted,
                 Add(a, b, dest) => {
                     let sum = self.resolve(a) + self.resolve(b);
                     self.memory[dest.value as usize] = sum;
@@ -176,6 +187,9 @@ impl Machine {
                     self.memory[dest.value as usize] = prod;
                 }
                 Input(dest) => {
+                    if self.await_empty_input && self.input_ptr == self.input.len() {
+                        return Status::Waiting;
+                    }
                     let value = self.input[self.input_ptr];
                     self.input_ptr += 1;
                     self.memory[dest.value as usize] = value;
@@ -216,6 +230,10 @@ impl Machine {
                 self.mem_ptr += instruction.size();
             }
         }
+    }
+
+    pub fn add_input(&mut self, new_input: i32) {
+        self.input.push(new_input)
     }
 
     fn resolve(&self, parameter: &Parameter) -> i32 {

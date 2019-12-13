@@ -5,6 +5,7 @@ use day3;
 use day4;
 use day5;
 use day6;
+use day7;
 use std::time::Instant;
 
 macro_rules! run_day {
@@ -23,6 +24,11 @@ macro_rules! run_day {
 }
 
 fn main() {
+    day7::part1();
+    day7::part2();
+}
+
+fn t() {
     let matches = App::new("MyApp")
         .arg(Arg::with_name("day").index(1).help("The day to run"))
         .get_matches();
