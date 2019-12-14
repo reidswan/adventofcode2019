@@ -20,6 +20,7 @@ dependencies = [
  "day5 0.1.0",
  "day6 0.1.0",
  "day7 0.1.0",
+ "day8 0.1.0",
 ]
 
 [[package]]
@@ -99,6 +100,10 @@ version = "0.1.0"
 dependencies = [
  "common 0.1.0",
 ]
+
+[[package]]
+name = "day8"
+version = "0.1.0"
 
 [[package]]
 name = "libc"
