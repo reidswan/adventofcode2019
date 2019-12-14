@@ -73,11 +73,12 @@ impl<'a> Layers<'a> {
 impl<'a> fmt::Display for Layers<'a> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let final_layer = self.collapse();
-        let mut result_string = String::new();
+        // capacity: 2 chars per color + 1 newline per row + 1 for shits and giggles
+        let mut result_string = String::with_capacity(2 * final_layer.len() + self.height + 1);
         for (index, color) in final_layer.iter().enumerate() {
             result_string.push_str(match color {
                 Color::White => "||",
-                _ => "  "
+                _ => "  ",
             });
             if index % self.width == self.width - 1 {
                 result_string.push_str("\n");
@@ -148,7 +149,7 @@ struct ColorCount {
     transparent: usize,
 }
 
-pub fn get_parsed_input()-> Vec<Color> {
+pub fn get_parsed_input() -> Vec<Color> {
     let input = include_str!("input/input").trim();
     input.chars().map(|a| to_color(a)).collect()
 }
@@ -170,7 +171,6 @@ pub fn part1(colors: &Vec<Color>) {
         .unwrap();
 
     println!("Part 1 = {}", result.white * result.transparent);
-
 }
 
 pub fn part2(colors: &Vec<Color>) {
