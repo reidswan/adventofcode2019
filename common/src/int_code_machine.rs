@@ -1,18 +1,20 @@
 use crate::digits::*;
+use std::cmp::max;
 
 #[derive(Copy, Clone)]
 enum ParameterMode {
     Positional,
     Immediate,
+    Relative,
 }
 
 struct Parameter {
-    value: i32,
+    value: i128,
     mode: ParameterMode,
 }
 
 impl Parameter {
-    fn new(value: i32, mode: ParameterMode) -> Self {
+    fn new(value: i128, mode: ParameterMode) -> Self {
         Parameter { value, mode }
     }
 }
@@ -26,6 +28,7 @@ enum Instruction {
     JumpFalse(Parameter, Parameter),
     LessThan(Parameter, Parameter, Parameter),
     Equal(Parameter, Parameter, Parameter),
+    AdjustRelativeBase(Parameter),
     Halt,
 }
 
@@ -34,7 +37,7 @@ impl Instruction {
         use Instruction::*;
         match self {
             Add { .. } | Mult { .. } | LessThan { .. } | Equal { .. } => 4,
-            Input { .. } | Output { .. } => 2,
+            Input { .. } | Output { .. } | AdjustRelativeBase { .. } => 2,
             JumpFalse { .. } | JumpTrue { .. } => 3,
             Halt => 0,
         }
@@ -53,7 +56,7 @@ where
 }
 
 fn get_parameters(
-    src: &[i32],
+    src: &[i128],
     modes: &Vec<ParameterMode>,
     count: usize,
 ) -> (Option<Parameter>, Option<Parameter>, Option<Parameter>) {
@@ -81,7 +84,7 @@ fn get_parameters(
 }
 
 impl Instruction {
-    fn decode(mem: &[i32]) -> Instruction {
+    fn decode(mem: &[i128]) -> Instruction {
         use Instruction::*;
 
         let instruction_code = mem[0] % 100;
@@ -90,6 +93,7 @@ impl Instruction {
             .map(|d| match d {
                 0 => ParameterMode::Positional,
                 1 => ParameterMode::Immediate,
+                2 => ParameterMode::Relative,
                 _ => panic!("Not a valid parameter mode: {}", d),
             })
             .collect::<Vec<ParameterMode>>();
@@ -127,6 +131,10 @@ impl Instruction {
                 let (p1, p2, p3) = get_parameters(&mem[1..], &parameter_modes, 3);
                 Equal(p1.unwrap(), p2.unwrap(), p3.unwrap())
             }
+            9 => {
+                let (p1, _, _) = get_parameters(&mem[1..], &parameter_modes, 1);
+                AdjustRelativeBase(p1.unwrap())
+            }
             99 => Halt,
             _ => panic!("Invalid opcode: {}", instruction_code),
         }
@@ -135,23 +143,25 @@ impl Instruction {
 
 #[derive(Clone)]
 pub struct Machine {
-    pub memory: Vec<i32>,
+    pub memory: Vec<i128>,
     mem_ptr: usize,
-    pub input: Vec<i32>,
+    pub input: Vec<i128>,
     input_ptr: usize,
-    pub output: Vec<i32>,
+    pub output: Vec<i128>,
     await_empty_input: bool,
+    relative_base: isize,
 }
 
 pub enum Status {
-    Waiting, Halted
+    Waiting,
+    Halted,
 }
 
 impl Machine {
-    pub fn new(src: &str, input: Vec<i32>) -> Machine {
+    pub fn new(src: &str, input: Vec<i128>) -> Machine {
         let memory = src
             .split(',')
-            .map(|code| code.trim().parse::<i32>())
+            .map(|code| code.trim().parse::<i128>())
             .collect::<Result<Vec<_>, _>>();
         if let Ok(memory) = memory {
             Machine {
@@ -161,6 +171,7 @@ impl Machine {
                 mem_ptr: 0,
                 output: vec![],
                 await_empty_input: false,
+                relative_base: 0,
             }
         } else {
             panic!("Failed to parse! {:?}", memory);
@@ -171,7 +182,26 @@ impl Machine {
         self.await_empty_input = true;
     }
 
-    pub fn run(&mut self)-> Status {
+    /// ensure that the machine has memory to at least `destination`
+    fn ensure_memory(&mut self, destination: usize) {
+        if destination >= self.memory.len() {
+            let target_size = max(2 * self.memory.len(), destination);
+            self.memory
+                .append(&mut vec![0; target_size - self.memory.len() + 1]);
+        }
+    }
+
+    fn set_memory(&mut self, destination: usize, value: i128) {
+        self.ensure_memory(destination);
+        self.memory[destination] = value;
+    }
+
+    fn get_memory(&mut self, destination: usize) -> i128 {
+        self.ensure_memory(destination);
+        self.memory[destination]
+    }
+
+    pub fn run(&mut self) -> Status {
         use Instruction::*;
         loop {
             let instruction = Instruction::decode(&self.memory[self.mem_ptr..]);
@@ -180,11 +210,13 @@ impl Machine {
                 Halt => return Status::Halted,
                 Add(a, b, dest) => {
                     let sum = self.resolve(a) + self.resolve(b);
-                    self.memory[dest.value as usize] = sum;
+                    let mem_dest = self.resolve_as_destination(dest);
+                    self.set_memory(mem_dest, sum);
                 }
                 Mult(a, b, dest) => {
                     let prod = self.resolve(a) * self.resolve(b);
-                    self.memory[dest.value as usize] = prod;
+                    let mem_dest = self.resolve_as_destination(dest);
+                    self.set_memory(mem_dest, prod);
                 }
                 Input(dest) => {
                     if self.await_empty_input && self.input_ptr == self.input.len() {
@@ -192,7 +224,8 @@ impl Machine {
                     }
                     let value = self.input[self.input_ptr];
                     self.input_ptr += 1;
-                    self.memory[dest.value as usize] = value;
+                    let mem_dest = self.resolve_as_destination(dest);
+                    self.set_memory(mem_dest, value);
                 }
                 Output(dest) => {
                     let value = self.resolve(dest);
@@ -211,18 +244,26 @@ impl Machine {
                     }
                 }
                 LessThan(a, b, dest) => {
-                    self.memory[dest.value as usize] = if self.resolve(a) < self.resolve(b) {
+                    let write_value = if self.resolve(a) < self.resolve(b) {
                         1
                     } else {
                         0
                     };
+                    let mem_dest = self.resolve_as_destination(dest);
+                    self.set_memory(mem_dest, write_value);
                 }
                 Equal(a, b, dest) => {
-                    self.memory[dest.value as usize] = if self.resolve(a) == self.resolve(b) {
+                    let write_value = if self.resolve(a) == self.resolve(b) {
                         1
                     } else {
                         0
                     };
+                    let mem_dest = self.resolve_as_destination(dest);
+                    self.set_memory(mem_dest, write_value);
+                }
+                AdjustRelativeBase(a) => {
+                    let adjust_val = self.resolve(a);
+                    self.relative_base += adjust_val as isize
                 }
             }
 
@@ -232,14 +273,24 @@ impl Machine {
         }
     }
 
-    pub fn add_input(&mut self, new_input: i32) {
+    pub fn add_input(&mut self, new_input: i128) {
         self.input.push(new_input)
     }
 
-    fn resolve(&self, parameter: &Parameter) -> i32 {
+    fn resolve(&mut self, parameter: &Parameter) -> i128 {
         match parameter.mode {
             ParameterMode::Immediate => parameter.value,
-            _ => self.memory[parameter.value as usize],
+            _ => self.get_memory(self.resolve_as_destination(parameter)),
+        }
+    }
+
+    fn resolve_as_destination(&self, parameter: &Parameter) -> usize {
+        match parameter.mode {
+            ParameterMode::Immediate => panic!("Cannot use immediate mode as a destination!"),
+            ParameterMode::Positional => parameter.value as usize,
+            ParameterMode::Relative => {
+                (self.relative_base as i128 + parameter.value).abs() as usize
+            }
         }
     }
 }

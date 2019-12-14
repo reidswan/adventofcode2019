@@ -8,10 +8,10 @@ pub fn get_parsed_input()-> Machine {
 }
 
 pub fn part1(start_machine: &Machine) {
-    let s = (0i32..5i32).collect::<Vec<_>>();
+    let s = (0..5).collect::<Vec<_>>();
     let result = s
         .permutations()
-        .fold(None, |acc: Option<i32>, perm| {
+        .fold(None, |acc, perm| {
             let mut prev_output = 0;
             for &setting in perm {
                 let mut machine = start_machine.clone();
@@ -32,11 +32,11 @@ pub fn part1(start_machine: &Machine) {
 
 pub fn part2(start_machine: &Machine) {
     
-    let s = (5i32..10i32).collect::<Vec<_>>();
+    let s = (5..10).collect::<Vec<_>>();
 
     let result = s
         .permutations()
-        .fold(None, |acc: Option<i32>, perm| {
+        .fold(None, |acc, perm| {
             let init = init_machines(&start_machine, perm);
             let mut machines = init.into_iter().map(|m| Some(m)).collect::<Vec<_>>();
             let mut current = 0;
@@ -67,7 +67,7 @@ pub fn part2(start_machine: &Machine) {
     println!("Part 2 = {}", result)
 }
 
-fn init_machines(src_machine: &Machine, settings: &Vec<i32>) -> Vec<Machine> {
+fn init_machines(src_machine: &Machine, settings: &Vec<i128>) -> Vec<Machine> {
     let mut machines = Vec::with_capacity(settings.len());
     let mut prev_output = 0;
 
