@@ -1,6 +1,6 @@
 use common::int_code_machine::Machine;
 
-pub fn get_parsed_input()-> Machine {
+pub fn get_parsed_input() -> Machine {
     Machine::new(include_str!("input/input"), vec![])
 }
 

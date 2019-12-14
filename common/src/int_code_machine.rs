@@ -5,7 +5,7 @@ use std::cmp::max;
 enum ParameterMode {
     Positional,
     Immediate,
-    Relative
+    Relative,
 }
 
 struct Parameter {
@@ -153,7 +153,8 @@ pub struct Machine {
 }
 
 pub enum Status {
-    Waiting, Halted
+    Waiting,
+    Halted,
 }
 
 impl Machine {
@@ -170,7 +171,7 @@ impl Machine {
                 mem_ptr: 0,
                 output: vec![],
                 await_empty_input: false,
-                relative_base: 0
+                relative_base: 0,
             }
         } else {
             panic!("Failed to parse! {:?}", memory);
@@ -185,7 +186,8 @@ impl Machine {
     fn ensure_memory(&mut self, destination: usize) {
         if destination >= self.memory.len() {
             let target_size = max(2 * self.memory.len(), destination);
-            self.memory.append(&mut vec![0; target_size - self.memory.len() + 1]);
+            self.memory
+                .append(&mut vec![0; target_size - self.memory.len() + 1]);
         }
     }
 
@@ -194,12 +196,12 @@ impl Machine {
         self.memory[destination] = value;
     }
 
-    fn get_memory(&mut self, destination: usize)-> i128 {
+    fn get_memory(&mut self, destination: usize) -> i128 {
         self.ensure_memory(destination);
         self.memory[destination]
     }
 
-    pub fn run(&mut self)-> Status {
+    pub fn run(&mut self) -> Status {
         use Instruction::*;
         loop {
             let instruction = Instruction::decode(&self.memory[self.mem_ptr..]);
@@ -278,15 +280,17 @@ impl Machine {
     fn resolve(&mut self, parameter: &Parameter) -> i128 {
         match parameter.mode {
             ParameterMode::Immediate => parameter.value,
-            _ => self.get_memory(self.resolve_as_destination(parameter))
+            _ => self.get_memory(self.resolve_as_destination(parameter)),
         }
     }
 
-    fn resolve_as_destination(&self, parameter: &Parameter)-> usize {
+    fn resolve_as_destination(&self, parameter: &Parameter) -> usize {
         match parameter.mode {
             ParameterMode::Immediate => panic!("Cannot use immediate mode as a destination!"),
             ParameterMode::Positional => parameter.value as usize,
-            ParameterMode::Relative => (self.relative_base as i128 + parameter.value).abs() as usize
+            ParameterMode::Relative => {
+                (self.relative_base as i128 + parameter.value).abs() as usize
+            }
         }
     }
 }
