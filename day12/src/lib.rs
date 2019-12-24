@@ -1,6 +1,6 @@
 use std::default::Default;
-use std::str::{Chars, FromStr};
 use std::fmt;
+use std::str::{Chars, FromStr};
 
 pub fn part1(src: &Vec<Moon>) {
     let mut moons = src.clone();
@@ -9,8 +9,10 @@ pub fn part1(src: &Vec<Moon>) {
     for _ in 0..max {
         step(&mut moons);
     }
-    println!("Part 1: {}", moons.iter().map(|moon| moon.total_energy()).sum::<usize>())
- 
+    println!(
+        "Part 1: {}",
+        moons.iter().map(|moon| moon.total_energy()).sum::<usize>()
+    )
 }
 
 pub fn part2(src: &Vec<Moon>) {
@@ -21,12 +23,12 @@ pub fn part2(src: &Vec<Moon>) {
     println!("Part 2 = {}", lcm(px, lcm(py, pz)));
 }
 
-fn lcm(a: usize, b: usize)-> usize {
+fn lcm(a: usize, b: usize) -> usize {
     let div = gcd(a, b);
-    (a/div) * b
+    (a / div) * b
 }
 
-fn gcd(a: usize, b: usize)-> usize {
+fn gcd(a: usize, b: usize) -> usize {
     let mut a = a;
     let mut b = b;
     while b != 0 {
@@ -38,9 +40,9 @@ fn gcd(a: usize, b: usize)-> usize {
 }
 
 fn step(moons: &mut Vec<Moon>) {
-    let select_x = |moon: &Moon| {moon.position.x};
-    let select_y = |moon: &Moon| {moon.position.y};
-    let select_z = |moon: &Moon| {moon.position.z};
+    let select_x = |moon: &Moon| moon.position.x;
+    let select_y = |moon: &Moon| moon.position.y;
+    let select_z = |moon: &Moon| moon.position.z;
 
     let modify_x = |moon: &mut Moon, new_val: isize| {
         moon.velocity.x += new_val;
@@ -54,21 +56,34 @@ fn step(moons: &mut Vec<Moon>) {
         moon.velocity.z += new_val;
         moon.position.z += moon.velocity.z;
     };
-    
-    fn sort_and_alter(moons: &mut Vec<Moon>, select: Box<dyn Fn(&Moon)-> isize>, modify: Box<dyn Fn(&mut Moon, isize)>) {
-        let change_amount = moons.iter().map(|moon| {
-            let moons_lt = moons.iter().filter(|other| select(other) < select(moon)).count();
-            let moons_gt = moons.iter().filter(|other| select(other) > select(moon)).count();
-            moons_gt as isize - moons_lt as isize
-        }).collect::<Vec<isize>>();
+
+    fn sort_and_alter(
+        moons: &mut Vec<Moon>,
+        select: Box<dyn Fn(&Moon) -> isize>,
+        modify: Box<dyn Fn(&mut Moon, isize)>,
+    ) {
+        let change_amount = moons
+            .iter()
+            .map(|moon| {
+                let moons_lt = moons
+                    .iter()
+                    .filter(|other| select(other) < select(moon))
+                    .count();
+                let moons_gt = moons
+                    .iter()
+                    .filter(|other| select(other) > select(moon))
+                    .count();
+                moons_gt as isize - moons_lt as isize
+            })
+            .collect::<Vec<isize>>();
         moons.iter_mut().zip(change_amount).for_each(|(moon, amt)| {
             modify(moon, amt);
         });
     }
-    let closures: Vec<(Box<dyn Fn(&Moon)-> isize>, Box<dyn Fn(&mut Moon, isize)>)> = vec![
+    let closures: Vec<(Box<dyn Fn(&Moon) -> isize>, Box<dyn Fn(&mut Moon, isize)>)> = vec![
         (Box::new(select_x), Box::new(modify_x)),
         (Box::new(select_y), Box::new(modify_y)),
-        (Box::new(select_z), Box::new(modify_z))    
+        (Box::new(select_z), Box::new(modify_z)),
     ];
 
     for (sele, modi) in closures.into_iter() {
@@ -76,7 +91,7 @@ fn step(moons: &mut Vec<Moon>) {
     }
 }
 
-fn determine_periods(moons: &mut Vec<Moon>)-> (usize, usize, usize) {
+fn determine_periods(moons: &mut Vec<Moon>) -> (usize, usize, usize) {
     let (mut period_x, mut period_y, mut period_z) = (None, None, None);
     let start_x = moons.iter().map(|m| m.xs()).collect::<Vec<_>>();
     let start_y = moons.iter().map(|m| m.ys()).collect::<Vec<_>>();
@@ -109,11 +124,12 @@ fn determine_periods(moons: &mut Vec<Moon>)-> (usize, usize, usize) {
     (period_x.unwrap(), period_y.unwrap(), period_z.unwrap())
 }
 
-pub fn get_parsed_input()-> Vec<Moon> {
+pub fn get_parsed_input() -> Vec<Moon> {
     let input = include_str!("input/input");
-    input.lines().filter_map(|line| {
-        line.parse::<Moon>().ok()
-    }).collect()
+    input
+        .lines()
+        .filter_map(|line| line.parse::<Moon>().ok())
+        .collect()
 }
 
 impl FromStr for Moon {
@@ -173,11 +189,11 @@ impl Vector {
         Vector { x, y, z }
     }
 
-    fn abs_sum(&self)-> usize {
+    fn abs_sum(&self) -> usize {
         self.x.abs() as usize + self.y.abs() as usize + self.z.abs() as usize
     }
-    
-    fn as_tuple(&self)-> (isize, isize, isize) {
+
+    fn as_tuple(&self) -> (isize, isize, isize) {
         (self.x, self.y, self.z)
     }
 }
@@ -195,33 +211,38 @@ pub struct Moon {
 }
 
 impl Moon {
-    fn kinetic_energy(&self)-> usize {
+    fn kinetic_energy(&self) -> usize {
         self.velocity.abs_sum()
     }
 
-    fn potential_energy(&self)-> usize {
+    fn potential_energy(&self) -> usize {
         self.position.abs_sum()
     }
 
-    fn total_energy(&self)-> usize {
+    fn total_energy(&self) -> usize {
         self.kinetic_energy() * self.potential_energy()
     }
 
-    fn xs(&self)-> (isize, isize) {
+    fn xs(&self) -> (isize, isize) {
         (self.position.x, self.velocity.x)
     }
 
-    fn ys(&self)-> (isize, isize) {
+    fn ys(&self) -> (isize, isize) {
         (self.position.y, self.velocity.y)
-    } 
+    }
 
-    fn zs(&self)-> (isize, isize) {
+    fn zs(&self) -> (isize, isize) {
         (self.position.z, self.velocity.z)
     }
 }
 
 impl fmt::Debug for Moon {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Moon {{ pos: {:?}, vel: {:?} }}", self.position.as_tuple(), self.velocity.as_tuple())
+        write!(
+            f,
+            "Moon {{ pos: {:?}, vel: {:?} }}",
+            self.position.as_tuple(),
+            self.velocity.as_tuple()
+        )
     }
 }
