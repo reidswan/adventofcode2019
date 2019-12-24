@@ -101,20 +101,20 @@ fn determine_periods(moons: &mut Vec<Moon>) -> (usize, usize, usize) {
     while period_x.is_none() || period_y.is_none() || period_z.is_none() {
         step(moons);
         steps += 1;
-        let curr_x = moons.iter().map(|m| m.xs()).collect::<Vec<_>>();
-        let curr_y = moons.iter().map(|m| m.ys()).collect::<Vec<_>>();
-        let curr_z = moons.iter().map(|m| m.zs()).collect::<Vec<_>>();
         if let None = period_x {
+            let curr_x = moons.iter().map(|m| m.xs()).collect::<Vec<_>>();
             if curr_x == start_x {
                 period_x = Some(steps)
             }
         }
         if let None = period_y {
+            let curr_y = moons.iter().map(|m| m.ys()).collect::<Vec<_>>();
             if curr_y == start_y {
                 period_y = Some(steps)
             }
         }
         if let None = period_z {
+            let curr_z = moons.iter().map(|m| m.zs()).collect::<Vec<_>>();
             if curr_z == start_z {
                 period_z = Some(steps)
             }
