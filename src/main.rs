@@ -9,6 +9,7 @@ use day7;
 use day8;
 use day9;
 use day11;
+use day12;
 use std::time::Instant;
 
 macro_rules! run_day {
@@ -33,7 +34,8 @@ fn main() {
 
     let day = matches.value_of("day");
     if day.is_none() {
-        run_day!("All days", day1, day2, day3, day4, day5, day6, day7, day8, day9, day11);
+        run_day!("All days", day1, day2, day3, day4, day5, day6,
+                             day7, day8, day9, day11, day12);
     } else {
         let day = day.unwrap();
         match day {
@@ -47,6 +49,7 @@ fn main() {
             "8" => run_day!("Day 8", day8),
             "9" => run_day!("Day 9", day9),
             "11" => run_day!("Day 11", day11),
+            "12" => run_day!("Day 12", day12),
             _ => println!("Not a valid day: {}", day),
         }
     }
