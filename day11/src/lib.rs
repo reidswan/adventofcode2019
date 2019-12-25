@@ -18,7 +18,6 @@ pub fn part2(input: &String) {
     render(&panels.white_panels, panels.canvas_limits);
 }
 
-
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 enum PanelColor {
     Black, White
